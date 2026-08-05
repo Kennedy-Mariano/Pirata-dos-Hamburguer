@@ -1,7 +1,7 @@
 # Automação de Estoque + Pedidos via WhatsApp + Power BI
 
 ![Testes](https://github.com/Kennedy-Mariano/Pirata-dos-Hamburguer/actions/workflows/tests.yml/badge.svg)
-
+Figma https://www.figma.com/design/Dx1ooiJuJjY7cJ0QP9GfW0/Untitled?node-id=2-894&m=dev&t=q0mp1LGPiIA7spEJ-1
 ## Integrantes do grupo
 | Nº | Nome completo | Função no grupo |
 |----|----------------|------------------|
