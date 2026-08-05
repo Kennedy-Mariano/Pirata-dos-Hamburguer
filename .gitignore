@@ -1,0 +1,21 @@
+# Ambiente / segredos
+.env
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Saídas geradas pela automação (não versionar)
+data/*.csv
+relatorios/*.pdf
+!data/.gitkeep
+!relatorios/.gitkeep
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
