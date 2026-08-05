@@ -210,7 +210,3 @@ cliente (modo teste, já que não há credenciais do WhatsApp configuradas).
 - Adicionar autenticação/usuários no relatório;
 - Criar uma tela web simples para cadastro de produtos (hoje é feito direto no banco);
 - Adicionar testes automatizados (pytest) para as regras de estoque e financeiro.
-- Adicionar testes automatizados (pytest) para as regras de estoque e financeiro.
-<<<<<<< HEAD
-=======
-- Adicionar testes automatizados (pytest) para as regras de estoque e financeiro.

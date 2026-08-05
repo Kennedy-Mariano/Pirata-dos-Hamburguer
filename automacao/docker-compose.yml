@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    container_name: automacao_estoque_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: automacao_estoque
+      POSTGRES_USER: automacao
+      POSTGRES_PASSWORD: automacao123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./sql/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
