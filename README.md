@@ -1,18 +1,13 @@
 # Automação de Estoque + Pedidos via WhatsApp + Power BI
 
-![Testes](https://github.com/SEU_USUARIO/SEU_REPOSITORIO/actions/workflows/tests.yml/badge.svg)
-> ✏️ Troque `SEU_USUARIO/SEU_REPOSITORIO` pelo caminho real do repositório assim que publicar no GitHub, para o badge de testes funcionar.
+![Testes](https://github.com/Kennedy-Mariano/Pirata-dos-Hamburguer/actions/workflows/tests.yml/badge.svg)
 
 ## Integrantes do grupo
 | Nº | Nome completo | Função no grupo |
 |----|----------------|------------------|
-| 1  | [Nome do Integrante 1] | [ex.: Desenvolvimento backend / PostgreSQL] |
-| 2  | [Nome do Integrante 2] | [ex.: Integração WhatsApp] |
-| 3  | [Nome do Integrante 3] | [ex.: Relatórios e e-mail] |
-| 4  | [Nome do Integrante 4] | [ex.: Power BI / dashboard] |
-| 5  | [Nome do Integrante 5] | [ex.: Documentação / testes] |
-
-> ✏️ Substitua os nomes acima pelos integrantes reais do grupo antes de publicar.
+| 1  | Cleryton Kaique Chagas | Dono do projeto |
+| 2  | Kennedy Mariano Kulibaba Peruzzolo | Desenvolvimento / Front-end / Protótipo no Figma |
+| 3  | Gabriel Bieliek | Colaborador |
 
 ## Resumo da automação proposta
 Este projeto automatiza o ciclo completo de um pequeno negócio que vende
@@ -215,5 +210,3 @@ cliente (modo teste, já que não há credenciais do WhatsApp configuradas).
 - Adicionar autenticação/usuários no relatório;
 - Criar uma tela web simples para cadastro de produtos (hoje é feito direto no banco);
 - Adicionar testes automatizados (pytest) para as regras de estoque e financeiro.
-#   P i r a t a - d o s - H a m b u r g u e r  
- 
