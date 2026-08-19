@@ -33,3 +33,6 @@ POWERBI_PUSH_URL = os.getenv("POWERBI_PUSH_URL", "")
 # Pastas de saída
 PASTA_RELATORIOS = os.path.join(os.path.dirname(__file__), "..", "relatorios")
 PASTA_DADOS = os.path.join(os.path.dirname(__file__), "..", "data")
+
+# Token single-use (minutos)
+SINGLE_USE_TOKEN_TTL_MINUTES = int(os.getenv("SINGLE_USE_TOKEN_TTL_MINUTES", "60"))

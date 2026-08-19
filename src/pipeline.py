@@ -13,6 +13,7 @@ projeto (item 7 - Como Funcionará a Automação / item 10 - Fluxograma):
 9. Envia a confirmação do pedido ao cliente via WhatsApp
 """
 from src import db, estoque, financeiro, relatorio, email_sender, powerbi_export, whatsapp, config
+from src import orders
 
 
 def processar_pedido(cliente_nome: str, cliente_telefone: str, itens_pedido_texto: list) -> dict:
@@ -72,8 +73,21 @@ def processar_pedido(cliente_nome: str, cliente_telefone: str, itens_pedido_text
         # 7) envia o relatório por e-mail ao responsável
         email_sender.enviar_email_relatorio(caminho_pdf, resumo_periodo)
 
-        # 8) envia a confirmação do pedido ao cliente via WhatsApp
-        mensagem = whatsapp.montar_mensagem_confirmacao(cliente_nome, pedido_id, resumo_pedido)
+        # 8) cria token single-use e envia link via WhatsApp
+        conn_for_token = conn  # já temos conexão aberta
+        token = orders.create_single_use_token(conn_for_token, pedido_id)
+        host = getattr(config, 'WHATSAPP_PUBLIC_HOST', '').rstrip('/') if getattr(config, 'WHATSAPP_PUBLIC_HOST', '') else None
+        if host:
+            link = f"{host}/redeem/{token}"
+        else:
+            link = f"/redeem/{token} (configure WHATSAPP_PUBLIC_HOST no .env para gerar link completo)"
+
+        mensagem = (
+            whatsapp.montar_mensagem_confirmacao(cliente_nome, pedido_id, resumo_pedido)
+            + "\n\n"
+            + "Abra o link abaixo para visualizar/baixar o recibo do pedido (uso único):\n"
+            + link
+        )
         whatsapp.enviar_mensagem(cliente_telefone, mensagem)
 
         return {
