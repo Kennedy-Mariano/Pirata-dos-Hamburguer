@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fila de preparo — Cozinha</title>
+  <meta http-equiv="refresh" content="15">
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#1b1b1b; color:#eee; margin:0; padding:20px; }
+    h1 { text-align:center; }
+    .fila { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; max-width:1100px; margin:20px auto; }
+    .pedido { background:#262626; border-radius:12px; padding:16px; border-left:6px solid #f4b400; }
+    .pedido.EM_PREPARO { border-color:#4285f4; }
+    .pedido.PRONTO { border-color:#25d366; }
+    .pedido h2 { margin:0 0 6px; font-size:1.05rem; }
+    .status { display:inline-block; font-size:.75rem; padding:2px 8px; border-radius:20px; background:#444; margin-bottom:8px; }
+    .cliente { color:#bbb; font-size:.9rem; }
+    button { width:100%; margin-top:12px; padding:10px; border:none; border-radius:8px; background:#25d366; color:#111; font-weight:600; cursor:pointer; }
+    .vazio { text-align:center; color:#888; margin-top:60px; }
+  </style>
+</head>
+<body>
+  <h1>🍔 Fila de preparo — {{ fila|length }} pedido(s)</h1>
+
+  {% if not fila %}
+    <p class="vazio">Nenhum pedido em aberto no momento.</p>
+  {% else %}
+  <div class="fila">
+    {% for pedido in fila %}
+    <div class="pedido {{ pedido.status }}">
+      <span class="status">{{ pedido.status.replace('_', ' ') }}</span>
+      <h2>{{ pedido.numero_pedido }}</h2>
+      <div class="cliente">{{ pedido.cliente_nome }} · {{ pedido.cliente_telefone }}</div>
+      <div class="cliente">{{ pedido.forma_entrega }} · {{ pedido.forma_pagamento }}</div>
+      <div class="cliente">Total: R$ {{ "%.2f"|format(pedido.total_pedido) }}</div>
+      {% if pedido.status != 'RETIRADO' %}
+      <form method="post" action="/cozinha/avancar/{{ pedido.pedido_id }}">
+        <button type="submit">
+          {% if pedido.status == 'AGUARDANDO' %}Iniciar preparo
+          {% elif pedido.status == 'EM_PREPARO' %}Marcar como pronto
+          {% elif pedido.status == 'PRONTO' %}Marcar como retirado{% endif %}
+        </button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</body>
+</html>

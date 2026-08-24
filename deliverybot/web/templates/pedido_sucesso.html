@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedido {{ pedido.numero_pedido }} recebido</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f4f4f4; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+    .card { background:#fff; border-radius:14px; padding:32px 26px; max-width:420px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.1); }
+    .check { font-size:3rem; }
+    h1 { font-size:1.2rem; margin:10px 0 4px; }
+    p { color:#555; line-height:1.5; }
+    .numero { font-weight:700; color:#1f7a3d; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="check">✅</div>
+    <h1>Pedido <span class="numero">{{ pedido.numero_pedido }}</span> confirmado!</h1>
+    <p>Enviamos a confirmação e o cupom do seu pedido no seu WhatsApp.
+       Vamos te avisando por lá conforme o pedido for avançando na cozinha.</p>
+    <p>Tempo estimado: <strong>{{ pedido.tempo_estimado_min }} minutos</strong></p>
+    <p>Você já pode fechar esta página — este link não pode ser usado novamente.</p>
+  </div>
+</body>
+</html>

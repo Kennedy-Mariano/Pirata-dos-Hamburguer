@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ nome_restaurante }} — Fazer pedido</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#f4f4f4; margin:0; padding:0 0 40px; }
+    header { background:#1f1f1f; color:#fff; padding:20px; text-align:center; }
+    header h1 { margin:0; font-size:1.3rem; }
+    main { max-width:520px; margin:0 auto; padding:16px; }
+    .categoria { margin-top:20px; }
+    .categoria h2 { font-size:1rem; color:#333; border-bottom:2px solid #25d366; padding-bottom:4px; }
+    .item { display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:10px; padding:10px 14px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    .item .info { flex:1; }
+    .item .nome { font-weight:600; }
+    .item .desc { font-size:.8rem; color:#666; }
+    .item .preco { font-weight:600; color:#1f7a3d; margin-left:8px; }
+    .item input[type=number] { width:52px; padding:6px; border:1px solid #ccc; border-radius:6px; text-align:center; }
+    fieldset { border:none; background:#fff; border-radius:10px; padding:14px; margin-top:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    legend { font-weight:600; padding:0 4px; }
+    label { display:block; margin:10px 0 4px; font-size:.9rem; color:#333; }
+    input[type=text], select { width:100%; box-sizing:border-box; padding:10px; border:1px solid #ccc; border-radius:6px; }
+    .erro { background:#ffe1e1; color:#8b0000; padding:10px 14px; border-radius:8px; margin-top:16px; }
+    button { width:100%; margin-top:20px; padding:14px; background:#25d366; color:#fff; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; }
+    button:active { opacity:.85; }
+    #campo-endereco { display:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏴‍☠️ {{ nome_restaurante }}</h1>
+    <p style="margin:4px 0 0;font-size:.85rem;opacity:.8;">Link de pedido único — use uma vez só</p>
+  </header>
+
+  <main>
+    {% if erro %}<div class="erro">{{ erro }}</div>{% endif %}
+
+    <form method="post" action="">
+      {% for categoria, itens in grupos.items() %}
+      <div class="categoria">
+        <h2>{{ categoria }}</h2>
+        {% for item in itens %}
+        <div class="item">
+          <div class="info">
+            <div class="nome">{{ item.nome }}</div>
+            <div class="desc">{{ item.descricao }}</div>
+            <div class="preco">R$ {{ "%.2f"|format(item.preco) }}</div>
+          </div>
+          <input type="number" name="qtd_{{ item.id }}" min="0" max="20" value="0">
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+
+      <fieldset>
+        <legend>Seus dados</legend>
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" required placeholder="Como podemos te chamar?">
+
+        <label for="forma_entrega">Entrega</label>
+        <select id="forma_entrega" name="forma_entrega" onchange="document.getElementById('campo-endereco').style.display = this.value === 'ENTREGA' ? 'block' : 'none'">
+          <option value="RETIRADA BALCAO">Retirar no balcão</option>
+          <option value="ENTREGA">Entregar no meu endereço (+ R$ {{ "%.2f"|format(taxa_entrega) }})</option>
+        </select>
+
+        <div id="campo-endereco">
+          <label for="cep">CEP</label>
+          <input type="text" id="cep" name="cep" placeholder="00000-000">
+        </div>
+
+        <label for="forma_pagamento">Forma de pagamento</label>
+        <select id="forma_pagamento" name="forma_pagamento">
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartao de credito">Cartão de crédito</option>
+          <option value="Cartao de debito">Cartão de débito</option>
+          <option value="VALE ALIMENTACAO (COOPCERTO CABAL)">Vale-alimentação (Cabal)</option>
+        </select>
+      </fieldset>
+
+      <button type="submit">Confirmar pedido</button>
+    </form>
+  </main>
+</body>
+</html>

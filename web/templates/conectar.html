@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conectar WhatsApp — DeliveryBot</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#1b1b1b; color:#eee; margin:0; padding:24px; }
+    .box { max-width:520px; margin:0 auto; background:#262626; border-radius:16px; padding:24px; text-align:center; }
+    h1 { margin-top:0; }
+    .status { display:inline-block; padding:4px 12px; border-radius:20px; background:#444; font-size:.85rem; margin-bottom:16px; }
+    .status.WORKING { background:#1f7a3d; }
+    .status.SCAN_QR_CODE { background:#b8860b; color:#111; }
+    .status.FAILED, .status.WAHA_OFFLINE { background:#8b1e1e; }
+    img.qr { background:#fff; padding:12px; border-radius:12px; width:280px; height:280px; object-fit:contain; }
+    .cred { text-align:left; background:#1b1b1b; border-radius:10px; padding:12px 16px; font-family: ui-monospace, monospace; font-size:.9rem; margin-top:18px; }
+    .cred div { margin:4px 0; }
+    button, a.btn { display:inline-block; margin-top:14px; padding:10px 16px; border:none; border-radius:8px; background:#25d366; color:#111; font-weight:600; text-decoration:none; cursor:pointer; }
+    .muted { color:#aaa; font-size:.9rem; line-height:1.45; }
+    ol { text-align:left; color:#ddd; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>📱 Conectar WhatsApp</h1>
+    <div class="status {{ status }}">Sessão: {{ status }}</div>
+
+    {% if status == 'WORKING' %}
+      <p class="muted">Pronto. Mande qualquer mensagem no seu número — o bot responde com o menu.</p>
+    {% else %}
+      <p class="muted">Escaneie o QR com o WhatsApp do celular:<br>
+        <strong>Aparelhos conectados → Conectar um aparelho</strong></p>
+      <img class="qr" src="/conectar/qr?t={{ ts }}" alt="QR Code do WhatsApp">
+      <form method="post" action="/conectar/reiniciar">
+        <button type="submit">Gerar QR de novo</button>
+      </form>
+    {% endif %}
+
+    <ol>
+      <li>Abra o WhatsApp no celular</li>
+      <li>Toque nos três pontos → <strong>Aparelhos conectados</strong></li>
+      <li>Toque em <strong>Conectar um aparelho</strong></li>
+      <li>Aponte a câmera para o QR acima</li>
+    </ol>
+
+    <p class="muted">Não precisa logar em localhost:3000. Esta página já puxa o QR do WAHA.</p>
+
+    <div class="cred">
+      <div>Dashboard (se quiser): {{ waha_url }}/dashboard</div>
+      <div>Usuário: {{ dashboard_user }}</div>
+      <div>Senha: {{ dashboard_password }}</div>
+      <div>API key: {{ api_key }}</div>
+    </div>
+
+    <p><a class="btn" href="/cozinha">Ir para a cozinha</a></p>
+  </div>
+  <script>
+    setTimeout(function () { location.reload(); }, 8000);
+  </script>
+</body>
+</html>
