@@ -207,6 +207,8 @@ preparo em tempo real e clicar para avançar o status de cada pedido
 clique dispara automaticamente a mensagem correspondente no WhatsApp do
 cliente.
 
+athumalaka 
+
 ## 4. Testes automatizados
 
 ```bash
