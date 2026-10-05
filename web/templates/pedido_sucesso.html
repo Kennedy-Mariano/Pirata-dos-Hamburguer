@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedido {{ pedido.numero_pedido }} recebido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --tinta:#15201c; --pergaminho:#f4ecd8; --latao:#c8963e; --latao-claro:#e0b45f; --carvao:#241f17; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--tinta);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; margin: 0; padding: 24px;
+  }
+  .card {
+    background: var(--pergaminho); color: var(--carvao);
+    border-radius: 18px; padding: 34px 26px; max-width: 420px; text-align: center;
+    border-top: 4px solid var(--latao);
+  }
+  .check { font-size: 2.6rem; }
+  h1 { font-family: 'Rye', serif; font-weight: 400; font-size: 1.25rem; margin: 10px 0 14px; color: #1f5e3f; }
+  .numero { color: var(--carvao); }
+  p { color: #4a453a; line-height: 1.55; font-size: .92rem; }
+  .tempo {
+    display: inline-block; margin-top: 6px; padding: 6px 14px;
+    background: #fff; border-radius: 999px; font-weight: 700; font-size: .85rem; color: #1f5e3f;
+    border: 1px solid #d8cba3;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="check">✅</div>
+    <h1>Pedido <span class="numero">{{ pedido.numero_pedido }}</span> confirmado!</h1>
+    <p>Enviamos a confirmação e o cupom do seu pedido no seu WhatsApp.
+       Vamos te avisando por lá conforme o pedido for avançando na cozinha.</p>
+    <div class="tempo">⏱️ {{ pedido.tempo_estimado_min }} min</div>
+    <p style="margin-top:18px">Você já pode fechar esta página — este link não pode ser usado novamente.</p>
+  </div>
+</body>
+</html>

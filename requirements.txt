@@ -1,0 +1,9 @@
+Flask==3.0.3
+requests==2.32.3
+python-dotenv==1.0.1
+pytest==8.3.3
+
+# Só necessário se IA_PROVIDER=ANTHROPIC no .env (conversa natural via API
+# paga da Anthropic). Se for usar IA_PROVIDER=OLLAMA ou deixar a IA
+# desativada, pode remover esta linha e não instalar.
+anthropic==0.69.0

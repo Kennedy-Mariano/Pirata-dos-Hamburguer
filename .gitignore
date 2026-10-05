@@ -1,0 +1,17 @@
+# Segredos e configuracao local -- NUNCA versionar
+.env
+
+# Ambiente virtual Python
+venv/
+__pycache__/
+*.pyc
+
+# Banco de dados local (gerado automaticamente)
+data/deliverybot.db
+data/deliverybot.db-wal
+data/deliverybot.db-shm
+
+# Logs
+*.log
+data/cozinha.senha
+data/anthropic.chave

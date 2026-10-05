@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectar WhatsApp - {{ nome }}</title>
+<style>
+  body{font-family:Segoe UI,Arial,sans-serif;background:#f4f1ea;margin:0;display:flex;
+       justify-content:center;padding:24px;color:#222}
+  .card{background:#fff;border-radius:16px;padding:28px;max-width:460px;width:100%;
+        box-shadow:0 4px 18px rgba(0,0,0,.12);text-align:center}
+  h1{font-size:22px;margin:0 0 6px}
+  .sub{color:#666;margin:0 0 18px}
+  #qr{width:280px;height:280px;border:1px solid #ddd;border-radius:8px;display:none;margin:0 auto 14px}
+  #msg{font-size:18px;font-weight:600;margin:10px 0}
+  ol{text-align:left;line-height:1.7;font-size:16px;margin:14px auto;max-width:360px}
+  .ok{color:#1a7f37}.erro{color:#b42318}
+  button{background:#25d366;border:0;color:#fff;font-size:16px;padding:10px 20px;
+         border-radius:8px;cursor:pointer;margin-top:8px}
+  .grande{font-size:64px;margin:6px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Conectar o WhatsApp</h1>
+  <p class="sub">{{ nome }}</p>
+
+  <div id="conectado" style="display:none">
+    <div class="grande">✅</div>
+    <p id="msgOk" class="ok" style="font-size:20px;font-weight:600"></p>
+    <p>Pode fechar esta aba. O bot já está atendendo.</p>
+  </div>
+
+  <div id="aguardando">
+    <img id="qr" alt="QR Code do WhatsApp">
+    <div id="msg">Preparando…</div>
+    <ol id="passos" style="display:none">
+      <li>Abra o <b>WhatsApp</b> no celular do restaurante</li>
+      <li>Toque em <b>⋮ (Android)</b> ou <b>Configurações (iPhone)</b></li>
+      <li>Toque em <b>Aparelhos conectados</b></li>
+      <li>Toque em <b>Conectar um aparelho</b> e aponte para o QR Code</li>
+    </ol>
+    <button id="btn" style="display:none" onclick="iniciar()">Gerar novo QR Code</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let ultimoQr = 0;
+
+async function iniciar(){
+  $("msg").textContent = "Iniciando…";
+  try { await fetch("/whatsapp/iniciar", {method:"POST"}); } catch(e){}
+}
+
+async function ciclo(){
+  let s = {status:"INDISPONIVEL"};
+  try { s = await (await fetch("/whatsapp/status")).json(); } catch(e){}
+
+  const st = s.status;
+  const msg = $("msg"), qr = $("qr"), passos = $("passos"), btn = $("btn");
+  msg.className = "";
+
+  if (st === "WORKING") {
+    $("aguardando").style.display = "none";
+    $("conectado").style.display = "block";
+    $("msgOk").textContent = "WhatsApp conectado" + (s.numero ? " (" + s.numero + ")" : "") + "!";
+    return;                       // para de atualizar
+  }
+
+  $("aguardando").style.display = "block";
+  $("conectado").style.display = "none";
+
+  if (st === "SCAN_QR_CODE") {
+    msg.textContent = "Escaneie o QR Code com o celular";
+    passos.style.display = "block"; btn.style.display = "none";
+    if (Date.now() - ultimoQr > 15000) {          // QR muda a cada ~20s
+      qr.src = "/whatsapp/qr.png?t=" + Date.now();
+      qr.style.display = "block"; ultimoQr = Date.now();
+    }
+  } else if (st === "STARTING") {
+    msg.textContent = "Iniciando o WhatsApp… aguarde alguns segundos";
+    qr.style.display = "none"; passos.style.display = "none";
+  } else if (st === "STOPPED" || st === "SEM_SESSAO" || st === "FAILED") {
+    msg.textContent = "WhatsApp desconectado";
+    qr.style.display = "none"; passos.style.display = "none"; btn.style.display = "inline-block";
+    if (st !== "FAILED") iniciar();
+  } else if (st === "CHAVE_INVALIDA") {
+    msg.textContent = "Chave do WAHA não confere. Feche tudo e abra o Iniciar DeliveryBot de novo.";
+    msg.className = "erro"; qr.style.display = "none";
+  } else {
+    msg.textContent = "O Docker ainda está ligando… aguarde";
+    qr.style.display = "none"; passos.style.display = "none";
+  }
+  setTimeout(ciclo, 3000);
+}
+ciclo();
+</script>
+</body>
+</html>

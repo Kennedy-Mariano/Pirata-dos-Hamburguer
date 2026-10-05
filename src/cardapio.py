@@ -1,0 +1,56 @@
+from .db import get_conn
+
+# Ícone e cor de destaque por categoria -- usados como "retrato" do produto
+# quando ele não tem foto cadastrada (campo `imagem`), e também nos
+# distintivos de categoria da página do pedido. Categorias fora dessa lista
+# caem no fallback "🍽️" / cor neutra.
+ICONE_CATEGORIA = {
+    "Lanche": "🍔",
+    "Acompanhamento": "🍟",
+    "Bebida": "🥤",
+    "Sobremesa": "🍨",
+}
+ICONE_CATEGORIA_PADRAO = "🍽️"
+
+
+def listar_produtos_ativos():
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT id, nome, categoria, descricao, preco, imagem FROM produtos "
+            "WHERE ativo = 1 ORDER BY categoria, nome"
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def agrupar_por_categoria(produtos):
+    grupos = {}
+    for p in produtos:
+        grupos.setdefault(p["categoria"], []).append(p)
+    return grupos
+
+
+def buscar_produto(produto_id: int):
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT id, nome, categoria, descricao, preco, imagem FROM produtos "
+            "WHERE id = ? AND ativo = 1",
+            (produto_id,),
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def icone_categoria(categoria: str) -> str:
+    return ICONE_CATEGORIA.get(categoria, ICONE_CATEGORIA_PADRAO)
+
+
+def texto_cardapio() -> str:
+    """Monta o texto do cardápio para responder à opção 4 do menu do bot."""
+    produtos = listar_produtos_ativos()
+    grupos = agrupar_por_categoria(produtos)
+    linhas = ["📋 *Nosso cardápio:*", ""]
+    for categoria, itens in grupos.items():
+        linhas.append(f"*{categoria}*")
+        for item in itens:
+            linhas.append(f"• {item['nome']} — R$ {item['preco']:.2f}")
+        linhas.append("")
+    return "\n".join(linhas).strip()
