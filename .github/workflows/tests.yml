@@ -5,10 +5,17 @@ on:
     branches: ["**"]
   pull_request:
     branches: ["**"]
+  workflow_dispatch:
 
 jobs:
   testes:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deliverybot
+    env:
+      WHATSAPP_PROVIDER: TESTE
+      IA_PROVIDER: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -18,7 +25,7 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: pip install -r requirements-dev.txt
+        run: pip install -r requirements.txt
 
-      - name: Rodar testes (regras de negócio, WhatsApp, PDF, Power BI)
-        run: pytest -v
+      - name: Rodar testes do DeliveryBot
+        run: pytest -v --import-mode=importlib tests
