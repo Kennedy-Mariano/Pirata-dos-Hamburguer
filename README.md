@@ -7,6 +7,8 @@
 > Segunda API: ViaCEP — validar área de entrega pelo CEP.
 > Entidades mínimas do banco: clientes, produtos, pedidos, itens_pedido, fila_preparo, mensagens.
 
+**Tag aprovada:** [`deliverybot-v1.0`](https://github.com/Kennedy-Mariano/Pirata-dos-Hamburguer/releases/tag/deliverybot-v1.0) (commit `c8e5b15`, 05/10/2026), revisada por Kennedy Mariano. O código dessa tag tem histórico próprio e não faz merge direto com a main. Relatório: [relatorios/Relatorio_DeliveryBot.md](relatorios/Relatorio_DeliveryBot.md).
+
 Inspirado no fluxo do projeto [Pirata-dos-Hamburguer](https://github.com/Kennedy-Mariano/Pirata-dos-Hamburguer)
 (automação com Flask + WhatsApp Business Cloud API) e nos prints de atendimento
 anexados (menu numerado, link de pedido único, confirmação com número de pedido,
@@ -206,8 +208,6 @@ preparo em tempo real e clicar para avançar o status de cada pedido
 ("Confirmado" → "Em preparo" → "Pronto para retirada" → "Entregue"). Cada
 clique dispara automaticamente a mensagem correspondente no WhatsApp do
 cliente.
-
-athumalaka 
 
 ## 4. Testes automatizados
 
