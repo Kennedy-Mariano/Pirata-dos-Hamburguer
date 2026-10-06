@@ -1,3 +1,7 @@
+> **Versão alternativa em Docker.** A tag `deliverybot-v1.0` não inclui isto.
+> Nesta branch o Flask sobe no container, junto com o WAHA. Comando: `docker compose up -d`.
+> O túnel da Cloudflare é o serviço `cloudflared`. A URL pública sai no log dele; copie para `BASE_URL` no `.env` e suba o `app` de novo.
+>
 > **Comece pelo [MANUAL.md](MANUAL.md)**: passo a passo completo de instalação, IA, WhatsApp e testes.
 
 # DeliveryBot 🤖🍔 — Bot de Pedidos para Restaurante via WhatsApp
@@ -108,16 +112,12 @@ aqui chamado direto do Python, sem precisar do N8N.
 
 1. Instale o [Docker Desktop](https://docker.com).
 2. No `.env`, defina `WHATSAPP_PROVIDER=WAHA`.
-3. Rode o servidor Flask: `python -m src.app` (deixe essa janela aberta).
-4. Em outro terminal, suba o WAHA: `docker compose up`.
-5. Abra `http://localhost:3000` no navegador — é o Swagger/Dashboard do WAHA.
-   Vá em `GET /api/screenshot` (ou na aba Dashboard) para ver o **QR Code** e
-   escaneie com o WhatsApp do seu celular, em **Aparelhos conectados → Conectar
-   um aparelho**.
+3. Suba o Flask e o WAHA juntos: `docker compose up -d`.
+4. Abra `http://localhost:5000/whatsapp` e escaneie o QR Code.
+5. O dashboard do WAHA, se precisar, fica em `http://localhost:3000`.
 6. Pronto — assim que a sessão ficar `WORKING`, qualquer mensagem que
-   alguém mandar pro **seu número de WhatsApp** cai automaticamente no
-   webhook `http://localhost:5000/webhook/waha` (o `docker-compose.yml` já
-   configura isso sozinho) e o bot responde na hora.
+   alguém mandar pro **seu número de WhatsApp** chega no container do Flask
+   e o bot responde na hora.
 
 > Atenção: o WAHA usa o WhatsApp Web por baixo dos panos. Use um número que
 > você não se importe de conectar a um "aparelho" extra (dá pra usar seu

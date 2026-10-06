@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ nome }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --tinta:#15201c; --pergaminho:#f4ecd8; --latao:#c8963e; --latao-claro:#e0b45f; --carvao:#241f17; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--tinta);
+    color: var(--pergaminho);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; margin: 0; padding: 24px;
+  }
+  .card {
+    background: var(--pergaminho); color: var(--carvao);
+    border-radius: 18px; padding: 34px 26px; max-width: 440px; text-align: center;
+    border-top: 4px solid var(--latao);
+  }
+  h1 {
+    font-family: 'Rye', serif; font-weight: 400; font-size: 1.45rem;
+    margin: 8px 0 12px; color: #1f5e3f;
+  }
+  p { color: #4a453a; line-height: 1.55; font-size: .95rem; }
+  a {
+    display: inline-block; margin-top: 8px; color: #1f5e3f; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size:2.4rem">🍔</div>
+    <h1>{{ nome }}</h1>
+    <p>O cardápio não abre nesta página. Ele chega no WhatsApp, num link só seu, quando você pede para fazer o pedido.</p>
+    <p>Se você é da cozinha, a fila está em <a href="/cozinha">/cozinha</a>.</p>
+  </div>
+</body>
+</html>

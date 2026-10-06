@@ -1,4 +1,5 @@
 import hmac
+import ipaddress
 import logging
 import threading
 from functools import wraps
@@ -8,7 +9,7 @@ from flask import Flask, Response, jsonify, redirect, render_template, request, 
 from . import bot, cardapio, config, fila, pedidos, recibo, viacep, waha_admin, whatsapp
 from .db import init_db
 from .ia import aquecer_ollama
-from .links import link_valido, marcar_link_usado
+from .links import link_valido, marcar_link_usado, obter_link
 
 logging.basicConfig(
     level=logging.DEBUG if config.FLASK_DEBUG else logging.INFO,
@@ -74,6 +75,32 @@ def requer_login_cozinha(view):
     return wrapper
 
 
+# Docker Desktop entrega a conexão do navegador local pelo gateway da rede
+# interna (172.16/12 ou 192.168.65/24), não por 127.0.0.1. A porta publicada
+# continua só em 127.0.0.1. Um túnel (ngrok) manda X-Forwarded-For e cai fora.
+_REDES_DO_NOTEBOOK = (
+    ipaddress.ip_network("127.0.0.0/8"),
+    ipaddress.ip_network("::1/128"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.65.0/24"),
+)
+
+
+def _acesso_local_sem_proxy() -> bool:
+    veio_de_proxy = any(
+        request.headers.get(h) for h in ("X-Forwarded-For", "X-Forwarded-Host", "Forwarded")
+    )
+    if veio_de_proxy:
+        return False
+    try:
+        ip = ipaddress.ip_address(request.remote_addr or "")
+    except ValueError:
+        return False
+    if isinstance(ip, ipaddress.IPv6Address) and ip.ipv4_mapped is not None:
+        ip = ip.ipv4_mapped
+    return any(ip in rede for rede in _REDES_DO_NOTEBOOK)
+
+
 def apenas_neste_computador(view):
     """Só atende quem está NO próprio notebook. Pelo ngrok a conexão também
     chega como 127.0.0.1, mas vem com o cabeçalho X-Forwarded-For -- por isso
@@ -81,10 +108,7 @@ def apenas_neste_computador(view):
 
     @wraps(view)
     def wrapper(*args, **kwargs):
-        veio_de_proxy = any(
-            request.headers.get(h) for h in ("X-Forwarded-For", "X-Forwarded-Host", "Forwarded")
-        )
-        if request.remote_addr not in ("127.0.0.1", "::1") or veio_de_proxy:
+        if not _acesso_local_sem_proxy():
             return "Esta página só abre no computador do restaurante.", 403
         return view(*args, **kwargs)
 
@@ -215,6 +239,11 @@ def api_processar_mensagem(segredo):
     return jsonify({"telefone": telefone, "resposta": resposta})
 
 
+@app.route("/")
+def inicio():
+    return render_template("inicio.html", nome=config.NOME_RESTAURANTE)
+
+
 # ---------------------------------------------------------------------------
 # Atalho só para TESTE LOCAL: simula o cliente digitando "2" no WhatsApp,
 # sem precisar de credenciais da Meta nem do webhook real. Bloqueado quando
@@ -342,6 +371,25 @@ def enviar_pedido(token):
         # WhatsApp não deve impedir de mostrar a confirmação na tela.
         logger.exception("Pedido %s criado, mas falhou ao notificar %s pelo WhatsApp", pedido["numero_pedido"], telefone)
 
+    return redirect(url_for("recibo_pedido", token=token))
+
+
+@app.route("/m/<token>/recibo", methods=["GET"])
+def recibo_pedido(token):
+    """Confirmação do pedido. Fica no próprio sistema, não num arquivo local.
+    O link do cardápio continua de uso único; esta página só mostra o recibo."""
+    link = obter_link(token)
+    if not link or not link.get("usado") or not link.get("pedido_id"):
+        return render_template(
+            "link_invalido.html",
+            mensagem="Este link de pedido não existe ou ainda não foi concluído.",
+        ), 410
+    pedido = pedidos.obter_pedido(link["pedido_id"])
+    if pedido is None:
+        return render_template(
+            "link_invalido.html",
+            mensagem="Não encontrei o pedido deste link.",
+        ), 410
     return render_template("pedido_sucesso.html", pedido=pedido)
 
 

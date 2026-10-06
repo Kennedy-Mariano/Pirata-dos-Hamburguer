@@ -1,36 +1,77 @@
-# Sobe o WAHA (WhatsApp HTTP API) + o N8N (orquestrador do bot, opcional)
-# localmente. Todas as credenciais vêm do arquivo .env na MESMA pasta deste
+# Sobe o DeliveryBot (Flask) e o WAHA (WhatsApp) e deixa os dois no ar.
+# O Docker Desktop já inicia com o Windows; restart: unless-stopped sobe
+# de novo se o PC reiniciar e o usuário entrar na conta.
+#
+# Todas as credenciais vêm do arquivo .env na MESMA pasta deste
 # docker-compose.yml (o Docker Compose lê .env automaticamente) -- nada de
-# senha fixa aqui no arquivo. Ver MANUAL.md, seção "Segurança", para como
-# gerar valores fortes para cada uma.
+# senha fixa aqui no arquivo. A senha da cozinha NÃO está no .env: o
+# iniciar.ps1 (ou quem sobe o compose) passa COZINHA_SENHA na hora, a partir
+# de data\cozinha.senha. Ver MANUAL.md, seção "Segurança".
 #
 # Uso:
 #   1. Preencha o .env (WAHA_API_KEY, WAHA_DASHBOARD_USERNAME/PASSWORD,
 #      WEBHOOK_SECRET) -- veja .env.example.
-#   2. Rode o app Flask (fora do Docker): python -m src.app
-#   3. Suba os serviços:                  docker compose up -d
-#   4. Abra http://localhost:3000/dashboard e escaneie o QR Code com o
-#      WhatsApp do seu celular (Aparelhos conectados > Conectar aparelho).
-#      O webhook já vem configurado sozinho (variável WHATSAPP_HOOK_URL
-#      abaixo, incluindo o WEBHOOK_SECRET do seu .env).
-#   5. (Opcional) Abra http://localhost:5678 (N8N), importe
-#      n8n/deliverybot-waha.json e ative o workflow.
+#   2. Suba os serviços:  docker compose up -d
+#   3. Abra http://localhost:5000/whatsapp e escaneie o QR Code.
+#      O webhook do WAHA aponta para o container do Flask.
+#   4. (Opcional, pesado) N8N não sobe no comando acima. Para ligar:
+#      docker compose --profile n8n up -d
 #
-# host.docker.internal aponta pro "localhost" da sua máquina de dentro dos
-# containers -- é assim que o WAHA alcança o Flask (rodando fora do Docker).
+# Este PC tem pouca RAM. O compose desliga a IA (Ollama) de propósito:
+# o menu fixo responde na hora e o modelo de 2 GB não entra na memória.
 
 services:
+  app:
+    build: .
+    image: deliverybot-app
+    container_name: deliverybot-app
+    restart: unless-stopped
+    ports:
+      # O notebook continua em localhost. Quem está fora entra pelo túnel.
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /app/data/deliverybot.db
+      FLASK_DEBUG: "false"
+      # No container, localhost é o próprio Flask. O WAHA é o serviço ao lado.
+      WAHA_URL: http://waha:3000
+      # O .env pede Ollama. Neste PC isso troca a memória e cada mensagem
+      # espera o modelo até desistir. Menu fixo fica no lugar.
+      IA_PROVIDER: ""
+      OLLAMA_AQUECER_AO_INICIAR: "false"
+      BASE_URL: ${BASE_URL:-http://localhost:5000}
+      COZINHA_SENHA: ${COZINHA_SENHA:-}
+    volumes:
+      - ./data:/app/data
+    networks:
+      - deliverybot
+
+  # Túnel gratuito da Cloudflare. Não precisa de conta. A URL muda se este
+  # container reiniciar; nesse caso o BASE_URL do .env tem que ser atualizado.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: deliverybot-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://app:5000
+    depends_on:
+      - app
+    networks:
+      - deliverybot
+
   waha:
     image: devlikeapro/waha
     container_name: deliverybot-waha
     restart: unless-stopped
+    depends_on:
+      - app
     ports:
       # Só o próprio notebook acessa o WAHA (nada de abrir para a rede/internet).
       - "127.0.0.1:3000:3000"
     environment:
       # Aponta direto pro Flask, já com o segredo do webhook embutido na URL
       # -- sem ele, o Flask rejeita a requisição (ver src/app.py).
-      WHATSAPP_HOOK_URL: "http://host.docker.internal:5000/webhook/waha/${WEBHOOK_SECRET}"
+      WHATSAPP_HOOK_URL: "http://app:5000/webhook/waha/${WEBHOOK_SECRET}"
       WHATSAPP_HOOK_EVENTS: "message"
       # A engine WEBJS tem um bug conhecido ("No LID for user") com
       # atualizações recentes do WhatsApp Web. GOWS é a engine recomendada
@@ -61,6 +102,7 @@ services:
   n8n:
     image: n8nio/n8n
     container_name: deliverybot-n8n
+    profiles: ["n8n"]
     restart: unless-stopped
     ports:
       - "127.0.0.1:5678:5678"
